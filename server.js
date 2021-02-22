@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const cors = require('cors');
 require('dotenv').config();
 const db = require('./db');
 
@@ -7,13 +8,13 @@ const app = express();
 
 // Middleware
 app.use(morgan('dev'));
+app.use(cors());
 app.use(express.json());
 
 // get all restaurants
 app.get('/api/v1/restaurants', async (req, res) => {
   try {
     const results = await db.query('SELECT * from restaurants');
-    console.log('results', results);
     res.status(200).json({
       status: 'success',
       results: results.rows.length,
@@ -26,18 +27,24 @@ app.get('/api/v1/restaurants', async (req, res) => {
   }
 });
 
-// get one restaurant
+// get one restaurant and reviews
 app.get('/api/v1/restaurants/:id', async (req, res) => {
   try {
-    const results = await db.query(
-      // do not use template literal, vulnerable to sql injection attack, use parameterized query instead
+    const restaurant = await db.query(
       'select * from restaurants where id = $1',
       [req.params.id]
     );
+
+    const reviews = await db.query(
+      'select * from reviews where restaurant_id = $1',
+      [req.params.id]
+    );
+
     res.status(200).json({
       status: 'success',
       data: {
-        restaurant: results.rows[0],
+        restaurant: restaurant.rows[0],
+        reviews: reviews.rows,
       },
     });
   } catch (err) {
