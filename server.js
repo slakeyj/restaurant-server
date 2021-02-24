@@ -40,7 +40,8 @@ app.get('/api/v1/restaurants/:id', async (req, res) => {
     );
 
     const averageAndCount = await db.query(
-      'select * from restaurants left join (select restaurant_id, COUNT(*), TRUNC(AVG(rating), 1) as average_rating from reviews group by restaurant_id) reviews on restaurants.id = reviews.restaurant_id where id = $1;',
+      'select * from restaurants left join (select restaurant_id, COUNT(*), TRUNC(AVG(rating), 1) as average_rating from reviews group by restaurant_id) reviews on restaurants.id = reviews.restaurant_id where id = $1 ;',
+
       [req.params.id]
     );
 
@@ -129,7 +130,7 @@ app.post('/api/v1/restaurants/:id/add-review', async (req, res) => {
   }
 });
 
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3005;
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
