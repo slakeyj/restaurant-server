@@ -3,14 +3,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 require('dotenv').config();
 const db = require('./db/index.js');
-const { Client } = require('pg');
 
-const client = new Client({
-  connectionString: process.env.DATABASE_URL,
-  ssl: true,
-});
-
-client.connect();
 const app = express();
 
 // Middleware
