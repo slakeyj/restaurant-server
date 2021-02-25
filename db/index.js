@@ -1,15 +1,19 @@
 const { Pool } = require('pg');
 
-// const pool = new Pool({
-//   user: 'dbuser',
-//   host: 'localhost',
-//   database: 'dbname',
-//   password: 'secretpassword',
-//   port: 3211,
-// });
+const devConfig = {
+  user: process.env.PGUSER,
+  host: process.env.PGHOST,
+  database: process.env.PGDATABASE,
+  password: process.env.PGPASSWORD,
+  port: process.env.PGPORT,
+};
 
-// don't need to add environmental variables here because pg knows to look for them
-const pool = new Pool();
+const proConfig = {
+  connectionString: process.env.DATABASE_URL,
+};
+const pool = new Pool(
+  process.env.NODE_ENV === 'production' ? productionConfig : devConfig
+);
 
 module.exports = {
   query: (text, params) => pool.query(text, params),
