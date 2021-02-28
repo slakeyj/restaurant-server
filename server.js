@@ -27,7 +27,8 @@ app.get('/api/v1/restaurants', async (req, res) => {
       },
     });
   } catch (err) {
-    res.send({ message: err });
+    console.log('err', err);
+    res.status(500).send({ message: err });
   }
 });
 
@@ -60,7 +61,7 @@ app.get('/api/v1/restaurants/:id', async (req, res) => {
       },
     });
   } catch (err) {
-    res.send({ message: err });
+    res.status(500).send({ message: err });
   }
 });
 
@@ -79,7 +80,7 @@ app.post('/api/v1/restaurants', async (req, res) => {
       },
     });
   } catch (err) {
-    res.send({ message: err });
+    res.status(500).send({ message: err });
   }
 });
 
@@ -87,7 +88,7 @@ app.post('/api/v1/restaurants', async (req, res) => {
 app.put('/api/v1/restaurants/:id', async (req, res) => {
   try {
   } catch (err) {
-    res.send({ message: err });
+    res.status(500).send({ message: err });
   }
   const results = await db.query(
     'UPDATE restaurants SET name = $1, location = $2, price_range = $3 where id = $4 returning *',
@@ -109,7 +110,7 @@ app.delete('/api/v1/restaurants/:id', async (req, res) => {
       status: 'success',
     });
   } catch (err) {
-    res.send({ message: err });
+    res.status(500).send({ message: err });
   }
 });
 
@@ -126,7 +127,7 @@ app.post('/api/v1/restaurants/:id/add-review', async (req, res) => {
       },
     });
   } catch (err) {
-    console.log(err);
+    res.status(500).send({ message: err });
   }
 });
 
