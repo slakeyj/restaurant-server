@@ -14,9 +14,8 @@ app.use(express.json());
 // get all restaurants
 app.get('/api/v1/restaurants', async (req, res) => {
   try {
-    // const results = await db.query('SELECT * from restaurants');
     const restaurantRatingsData = await db.query(
-      'select * from restaurants left join (select restaurant_id, COUNT(*), TRUNC(AVG(rating), 1) as average_rating from reviews group by restaurant_id) reviews on restaurants.id = reviews.restaurant_id;'
+      'select * from restaurants left join (select restaurant_id, COUNT(*) as count, AVG(rating) as average_rating from reviews group by restaurant_id) reviews on restaurants.id = reviews.restaurant_id;'
     );
 
     res.status(200).json({
@@ -41,8 +40,7 @@ app.get('/api/v1/restaurants/:id', async (req, res) => {
     );
 
     const averageAndCount = await db.query(
-      'select * from restaurants left join (select restaurant_id, COUNT(*), TRUNC(AVG(rating), 1) as average_rating from reviews group by restaurant_id) reviews on restaurants.id = reviews.restaurant_id where id = $1 ;',
-
+      'select * from restaurants left join (select restaurant_id, COUNT(*) as count, AVG(rating) as average_rating from reviews group by restaurant_id) reviews on restaurants.id = reviews.restaurant_id where id = $1 ;',
       [req.params.id]
     );
 
@@ -69,17 +67,16 @@ app.get('/api/v1/restaurants/:id', async (req, res) => {
 
 app.post('/api/v1/restaurants', async (req, res) => {
   try {
-    const results = await db.query(
-      'INSERT INTO restaurants(name, location, price_range) values($1, $2, $3) returning *',
+    await db.query(
+      'INSERT INTO restaurants(name, location, price_range) values($1, $2, $3)',
       [req.body.name, req.body.location, req.body.price_range]
     );
     res.status(201).json({
       status: 'success',
-      data: {
-        restaurant: results.rows[0],
-      },
+      data: {},
     });
   } catch (err) {
+    console.log(err);
     res.status(500).send({ message: err });
   }
 });
@@ -90,15 +87,13 @@ app.put('/api/v1/restaurants/:id', async (req, res) => {
   } catch (err) {
     res.status(500).send({ message: err });
   }
-  const results = await db.query(
-    'UPDATE restaurants SET name = $1, location = $2, price_range = $3 where id = $4 returning *',
+  await db.query(
+    'UPDATE restaurants SET name = $1, location = $2, price_range = $3 where id = $4',
     [req.body.name, req.body.location, req.body.price_range, req.params.id]
   );
   res.status(200).json({
     status: 'success',
-    data: {
-      restaurant: results.rows[0],
-    },
+    data: {},
   });
 });
 

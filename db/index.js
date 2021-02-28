@@ -1,13 +1,22 @@
-const { Pool } = require('pg');
+const sqlite3 = require('sqlite3');
 
-const devConfig = {
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  },
-};
-const pool = new Pool(devConfig);
+const db = new sqlite3.Database('./db/yelp.db', err => {
+  if (err) {
+    console.error(err.message);
+    throw err;
+  }
+  console.log('Connected to the database.');
+});
 
 module.exports = {
-  query: (text, params) => pool.query(text, params),
+  query: (sql, params) =>
+    new Promise((resolve, reject) => {
+      db.all(sql, params, (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({ rows });
+        }
+      });
+    }),
 };
