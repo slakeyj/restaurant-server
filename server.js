@@ -84,17 +84,17 @@ app.post('/api/v1/restaurants', async (req, res) => {
 // update restaurant
 app.put('/api/v1/restaurants/:id', async (req, res) => {
   try {
+    await db.query(
+      'UPDATE restaurants SET name = $1, location = $2, price_range = $3 where id = $4',
+      [req.body.name, req.body.location, req.body.price_range, req.params.id]
+    );
+    res.status(200).json({
+      status: 'success',
+      data: {},
+    });
   } catch (err) {
     res.status(500).send({ message: err });
   }
-  await db.query(
-    'UPDATE restaurants SET name = $1, location = $2, price_range = $3 where id = $4',
-    [req.body.name, req.body.location, req.body.price_range, req.params.id]
-  );
-  res.status(200).json({
-    status: 'success',
-    data: {},
-  });
 });
 
 // delete restaurant
@@ -115,14 +115,12 @@ app.delete('/api/v1/restaurants/:id', async (req, res) => {
 app.post('/api/v1/restaurants/:id/add-review', async (req, res) => {
   try {
     const newReview = await db.query(
-      'INSERT INTO reviews(restaurant_id, name, review, rating) values ($1, $2, $3, $4) returning *',
+      'INSERT INTO reviews(restaurant_id, name, review, rating) values ($1, $2, $3, $4)',
       [req.params.id, req.body.name, req.body.review, req.body.rating]
     );
     res.status(201).json({
       status: 'success',
-      data: {
-        review: newReview.rows[0],
-      },
+      data: {},
     });
   } catch (err) {
     res.status(500).send({ message: err });
